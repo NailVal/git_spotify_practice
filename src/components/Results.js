@@ -3,8 +3,17 @@ import styles from '../css_modules/Results.module.css';
 
 function Results(props) {
 
+	const object = {
+		index: props.id,
+		songName: props.song,
+		albumName: props.album,
+		artistName: props.artist
+	};
+
 	const handleButton = () => {
-		props.handlePlusButton();
+		props.handlePlusButton(object);
+		props.handleDelete(object.index);
+
 	}
 
 	return (

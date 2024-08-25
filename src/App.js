@@ -10,6 +10,8 @@ function App() {
   const [isActive, setIsActive] = useState(null);
   const [error, setError] = useState('');
   const [data, setData] = useState([]);
+
+  const [obj, setObj] = useState({});
   const [arrayList, setArrayList] = useState([]);
 
 
@@ -26,10 +28,27 @@ function App() {
     }
   }
 
-  const handlePlusButton = (addListing) => {
-    setArrayList(prev => {
-      [...prev, addListing];
-    });
+
+  const handlePlusButton = (addObj, index) => {
+    
+    /*
+    setData(data => (
+      data.filter((info, i) => info.i !== index)
+      ))
+    */
+
+    setArrayList(list => (
+      [...list, addObj]
+      ));
+  }
+
+
+
+  const handleDelete = (index) => {
+      setData(data => (
+        data.filter((info, i) => info[i] !== index)
+      ))
+      console.log(data);
   }
 
 
@@ -40,11 +59,14 @@ useEffect(() => {
     })
   }
 
+
   if (isActive) {
     setIsActive(false);
   }
 
-}, [isActive]);
+  console.log(arrayList);
+
+}, [isActive, arrayList, data]);
 
 
 
@@ -52,13 +74,15 @@ useEffect(() => {
     <>
       <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error} />
       <h2>Results</h2>
-      {console.log(data)}
+      
       {data.map((item, index) => (
           item.artists.map((listing, i) => (
-            <Results key={index} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} />
+            <Results key={index} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} handleDelete={handleDelete} />
           ))
       ))}
-      <Playlist />
+      {arrayList.map((item, index) => (
+          <Playlist key={index} id={index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} />
+        ))}
     </>
   );
 }
