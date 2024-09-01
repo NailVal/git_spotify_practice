@@ -10,8 +10,6 @@ function App() {
   const [isActive, setIsActive] = useState(null);
   const [error, setError] = useState('');
   const [data, setData] = useState([]);
-
-  const [obj, setObj] = useState({});
   const [arrayList, setArrayList] = useState([]);
 
 
@@ -28,29 +26,66 @@ function App() {
     }
   }
 
-
-  const handlePlusButton = (addObj, index) => {
+  const handlePlusButton = (addObj) => {
     
     /*
-    setData(data => (
-      data.filter((info, i) => info.i !== index)
-      ))
-    */
+      const isExists = arrayList.some(obj => addObj.index === obj.index);
 
-    setArrayList(list => (
-      [...list, addObj]
+      if (!isExists) {
+        setArrayList(list => (
+          [...list, addObj]
+        ));
+      }
+      */
+
+    setArrayList(list => {
+        if (list.some(obj => obj.index === addObj.index)) {
+          return list;
+        }
+
+        return [...list, addObj];
+      })
+
+    }
+
+/*
+  const handleMinusButton = (minusObj) => {
+    setArrayList(list => {
+      list.filter(obj => obj.index !== minusObj.index)
+    })
+  }  
+*/
+
+  const handleMinusButton = (index) => {
+    setArrayList(list => {
+      list.filter((obj, i) => i !== index)
+    })
+  }
+
+/*
+  const handlePlusButton = (addObj) => {
+    
+      setArrayList(list => (
+        arrayList.forEach(item => {
+          if (arrayList.length = 0 || item.index !== addObj.index) {
+            [...list, addObj]
+          }
+          else {
+          console.log('Wrong click!');  
+          }
+        })
       ));
+     }   
+*/
+/*
+  const handlePlusButton = (addObj) => {
+    if (arrayList.length = 0 || !arrayList) {
+      setArrayList(list => (
+        [...list, addObj.index[0]]
+      ));
+    }
   }
-
-
-
-  const handleDelete = (index) => {
-      setData(data => (
-        data.filter((info, i) => info[i] !== index)
-      ))
-      console.log(data);
-  }
-
+*/
 
 useEffect(() => {
   if (query.length > 0 && isActive) {
@@ -77,11 +112,11 @@ useEffect(() => {
       
       {data.map((item, index) => (
           item.artists.map((listing, i) => (
-            <Results key={index} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} handleDelete={handleDelete} />
+            <Results key={index} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} />
           ))
       ))}
-      {arrayList.map((item, index) => (
-          <Playlist key={index} id={index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} />
+      {arrayList?.map((item, index) => (
+          <Playlist key={index} id={index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} handleMinusButton={handleMinusButton(index)} />
         ))}
     </>
   );

@@ -12,7 +12,6 @@ function Results(props) {
 
 	const handleButton = () => {
 		props.handlePlusButton(object);
-		props.handleDelete(object.index);
 
 	}
 
