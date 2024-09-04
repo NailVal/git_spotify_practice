@@ -3,6 +3,7 @@ import { get } from './fetch';
 import SearchBar from './components/SearchBar';
 import Results from './components/Results';
 import Playlist from './components/Playlist';
+import styles from '../src/css_modules/App.module.css';
 
 function App() {
 
@@ -11,6 +12,8 @@ function App() {
   const [error, setError] = useState('');
   const [data, setData] = useState([]);
   const [arrayList, setArrayList] = useState([]);
+  const [playList, setPlayList] = useState('');
+  const [arrayLists, setArrayLists] = useState([]);
 
 
 
@@ -28,16 +31,6 @@ function App() {
 
   const handlePlusButton = (addObj) => {
     
-    /*
-      const isExists = arrayList.some(obj => addObj.index === obj.index);
-
-      if (!isExists) {
-        setArrayList(list => (
-          [...list, addObj]
-        ));
-      }
-      */
-
     setArrayList(list => {
         if (list.some(obj => obj.index === addObj.index)) {
           return list;
@@ -48,44 +41,24 @@ function App() {
 
     }
 
-/*
-  const handleMinusButton = (minusObj) => {
-    setArrayList(list => {
-      list.filter(obj => obj.index !== minusObj.index)
-    })
-  }  
-*/
 
   const handleMinusButton = (index) => {
     setArrayList(list => {
-      list.filter((obj, i) => i !== index)
+      console.log(list);
+      return list.filter(obj => obj.index !== index)
     })
   }
 
-/*
-  const handlePlusButton = (addObj) => {
-    
-      setArrayList(list => (
-        arrayList.forEach(item => {
-          if (arrayList.length = 0 || item.index !== addObj.index) {
-            [...list, addObj]
-          }
-          else {
-          console.log('Wrong click!');  
-          }
-        })
-      ));
-     }   
-*/
-/*
-  const handlePlusButton = (addObj) => {
-    if (arrayList.length = 0 || !arrayList) {
-      setArrayList(list => (
-        [...list, addObj.index[0]]
-      ));
-    }
+  const namePlaylist = (name) => {
+    setPlayList(name);
   }
-*/
+
+  const handleLists = (list) => {
+    setArrayLists(prev => (
+      [...prev, list]
+    ))
+    console.log(arrayLists);
+  }
 
 useEffect(() => {
   if (query.length > 0 && isActive) {
@@ -99,25 +72,31 @@ useEffect(() => {
     setIsActive(false);
   }
 
-  console.log(arrayList);
-
-}, [isActive, arrayList, data]);
+}, [isActive, data, arrayList]);
 
 
 
   return (
     <>
       <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error} />
-      <h2>Results</h2>
+      <h2>{data.length > 0 ? 'Results' : null}</h2>
       
-      {data.map((item, index) => (
-          item.artists.map((listing, i) => (
-            <Results key={index} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} />
-          ))
-      ))}
-      {arrayList?.map((item, index) => (
-          <Playlist key={index} id={index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} handleMinusButton={handleMinusButton(index)} />
-        ))}
+      <div className={styles.container}>
+        <div>
+          {data.map((item, index) => (
+              item.artists.map((listing, i) => (
+                <Results key={index} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} />
+              ))
+          ))}
+        </div>
+
+        <div>
+          {arrayList.length > 1 ? <input type="text" namePlaylist={playList} placeholder="Name your playlist..." /> : null}  
+          {arrayList?.map((item, index) => (
+              <Playlist key={item.index} id={item.index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} handleMinusButton={handleMinusButton} getArrayList={arrayList} addToLists={handleLists} />
+            ))} 
+        </div>
+      </div>  
     </>
   );
 }
