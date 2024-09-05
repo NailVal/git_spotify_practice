@@ -4,6 +4,7 @@ import SearchBar from './components/SearchBar';
 import Results from './components/Results';
 import Playlist from './components/Playlist';
 import styles from '../src/css_modules/App.module.css';
+import { nanoid } from "nanoid";
 
 function App() {
 
@@ -57,7 +58,6 @@ function App() {
     setArrayLists(prev => (
       [...prev, list]
     ))
-    console.log(arrayLists);
   }
 
 useEffect(() => {
@@ -72,7 +72,7 @@ useEffect(() => {
     setIsActive(false);
   }
 
-}, [isActive, data, arrayList]);
+}, [isActive, data]);
 
 
 
@@ -85,7 +85,7 @@ useEffect(() => {
         <div>
           {data.map((item, index) => (
               item.artists.map((listing, i) => (
-                <Results key={index} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} />
+                <Results key={`${index}-${nanoid()}`} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} />
               ))
           ))}
         </div>
@@ -93,8 +93,10 @@ useEffect(() => {
         <div>
           {arrayList.length > 1 ? <input type="text" namePlaylist={playList} placeholder="Name your playlist..." /> : null}  
           {arrayList?.map((item, index) => (
-              <Playlist key={item.index} id={item.index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} handleMinusButton={handleMinusButton} getArrayList={arrayList} addToLists={handleLists} />
-            ))} 
+              <Playlist key={item.index} id={item.index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
+            ))}
+          {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
+          {console.log(arrayLists)}   
         </div>
       </div>  
     </>
