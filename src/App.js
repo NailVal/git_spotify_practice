@@ -50,14 +50,26 @@ function App() {
     })
   }
 
-  const namePlaylist = (name) => {
-    setPlayList(name);
+  const handleLists = (list) => {
+
+    const obj = {
+      playlistName: playList,
+      arrList: list 
+    }
+
+    setArrayLists(prev => (
+      [...prev, obj]
+    ))
+
+    if (playList.length < 1) {
+
+    } 
+
+    setPlayList('');
   }
 
-  const handleLists = (list) => {
-    setArrayLists(prev => (
-      [...prev, list]
-    ))
+  const namePlaylist = (e) => {
+    setPlayList(e.target.value)
   }
 
 useEffect(() => {
@@ -91,7 +103,12 @@ useEffect(() => {
         </div>
 
         <div>
-          {arrayList.length > 1 ? <input type="text" namePlaylist={playList} placeholder="Name your playlist..." /> : null}  
+          {arrayList.length > 1 ?
+          <> 
+            <input type="text" value={playList} onChange={namePlaylist} placeholder="Name your playlist..." />
+            <small>Type in a playList input field!</small>
+          </>
+          : null}  
           {arrayList?.map((item, index) => (
               <Playlist key={item.index} id={item.index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
             ))}
