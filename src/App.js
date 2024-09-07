@@ -3,6 +3,7 @@ import { get } from './fetch';
 import SearchBar from './components/SearchBar';
 import Results from './components/Results';
 import Playlist from './components/Playlist';
+import List from './components/List';
 import styles from '../src/css_modules/App.module.css';
 import { nanoid } from "nanoid";
 
@@ -10,7 +11,7 @@ function App() {
 
   const [query, setQuery] = useState('');
   const [isActive, setIsActive] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState({});
   const [data, setData] = useState([]);
   const [arrayList, setArrayList] = useState([]);
   const [playList, setPlayList] = useState('');
@@ -26,7 +27,8 @@ function App() {
     setIsActive(addBoolean);
 
     if (query.length === 0) {
-      setError('Type in a word!');
+      const resultsError = 'Type in an input field!';
+      setError({ resultsError: resultsError });
     }
   }
 
@@ -53,17 +55,25 @@ function App() {
   const handleLists = (list) => {
 
     const obj = {
+      index: arrayLists.length,  
       playlistName: playList,
       arrList: list 
     }
 
-    setArrayLists(prev => (
-      [...prev, obj]
-    ))
+    if (playList.length === 0) {
+      const inputFieldError = 'Type in a playlist input field!';
+      setError({ inputFieldError: inputFieldError });
+    }
 
-    if (playList.length < 1) {
+    else if (arrayLists.some((listing) => (listing.arrList === list))) {
+      console.log('Coincidence!');
+    }
 
-    } 
+    else {
+      setArrayLists(prev => (
+        [...prev, obj]
+      ))
+    }  
 
     setPlayList('');
   }
@@ -90,12 +100,12 @@ useEffect(() => {
 
   return (
     <>
-      <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error} />
+      <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error.resultsError} />
       <h2>{data.length > 0 ? 'Results' : null}</h2>
       
       <div className={styles.container}>
         <div>
-          {data.map((item, index) => (
+          {data.map((item, index) => ( 
               item.artists.map((listing, i) => (
                 <Results key={`${index}-${nanoid()}`} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} />
               ))
@@ -106,7 +116,7 @@ useEffect(() => {
           {arrayList.length > 1 ?
           <> 
             <input type="text" value={playList} onChange={namePlaylist} placeholder="Name your playlist..." />
-            <small>Type in a playList input field!</small>
+            <small>{error.inputFieldError}</small>
           </>
           : null}  
           {arrayList?.map((item, index) => (
@@ -115,6 +125,19 @@ useEffect(() => {
           {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
           {console.log(arrayLists)}   
         </div>
+
+        <div>
+          {arrayLists.map((item) => (
+            <List key={item.index} 
+                  playlistName={item.playlistName} 
+                  songsInfo={item.arrList.map((plate) => ({
+                    songName: plate.songName,
+                    albumName: plate.albumName 
+                  }))}
+            />
+            ))}
+        </div>
+
       </div>  
     </>
   );
