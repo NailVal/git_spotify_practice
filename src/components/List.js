@@ -9,9 +9,10 @@ function List(props) {
 			{props.songsInfo.map((song, index) => (
 				<div key={index}>
 					<h3>{song.songName}</h3>
-					<p>{song.albumName}</p>
+					<p>{song.artistName}</p>
 				</div>
 			))}
+			<button type="submit">Save to Playlist</button>
 		</>	
 	)
 }

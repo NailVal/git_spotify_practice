@@ -4,10 +4,11 @@ import styles from '../css_modules/Results.module.css';
 function Results(props) {
 
 	const object = {
-		index: props.id,
+		index: props.index,
 		songName: props.song,
 		albumName: props.album,
-		artistName: props.artist
+		artistName: props.artist,
+		specialId: props.specialId
 	};
 
 	const handleButton = () => {
@@ -17,9 +18,9 @@ function Results(props) {
 
 	return (
 		<>
-			<div id={props.id}>
+			<div id={props.specialId}>
 				<h3>{props.song}</h3>
-				<p><span className={styles.leftSpan}>{props.album}</span> <span>{props.artist}</span></p>
+				<p><span className={styles.leftSpan}>{props.album}</span> <span>{props.art}</span></p>
 				<button onClick={handleButton}>+</button>
 			</div>
 		</>	

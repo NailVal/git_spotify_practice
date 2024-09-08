@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { get } from './fetch';
+import { get, createPlaylist } from './fetch';
 import SearchBar from './components/SearchBar';
 import Results from './components/Results';
 import Playlist from './components/Playlist';
@@ -35,7 +35,7 @@ function App() {
   const handlePlusButton = (addObj) => {
     
     setArrayList(list => {
-        if (list.some(obj => obj.index === addObj.index)) {
+        if (list.some(obj => obj.specialId === addObj.specialId)) {
           return list;
         }
 
@@ -47,7 +47,6 @@ function App() {
 
   const handleMinusButton = (index) => {
     setArrayList(list => {
-      console.log(list);
       return list.filter(obj => obj.index !== index)
     })
   }
@@ -66,7 +65,8 @@ function App() {
     }
 
     else if (arrayLists.some((listing) => (listing.arrList === list))) {
-      console.log('Coincidence!');
+      const playlistError = 'You already added this playlist!';
+      setError({ playlistError: playlistError });
     }
 
     else {
@@ -94,7 +94,20 @@ useEffect(() => {
     setIsActive(false);
   }
 
-}, [isActive, data]);
+}, [isActive]);
+
+
+useEffect(() => {
+
+  const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
+
+  arrayLists.forEach(list => {
+      createPlaylist(userId, list.playlistName).then((response) => {
+        console.log(response);
+      })
+  })
+
+}, [arrayLists]);
 
 
 
@@ -105,10 +118,15 @@ useEffect(() => {
       
       <div className={styles.container}>
         <div>
-          {data.map((item, index) => ( 
-              item.artists.map((listing, i) => (
-                <Results key={`${index}-${nanoid()}`} id={index} song={item.name} album={item.album.name} artist={listing.name} handlePlusButton={handlePlusButton} />
-              ))
+          {data.map((item, index) => (
+            <Results key={item.id} 
+                     index={index}
+                     specialId={item.id} 
+                     song={item.name} 
+                     album={item.album.name}
+                     handlePlusButton={handlePlusButton}
+                     artist={item.artists[0].name}  
+            /> 
           ))}
         </div>
 
@@ -120,10 +138,11 @@ useEffect(() => {
           </>
           : null}  
           {arrayList?.map((item, index) => (
-              <Playlist key={item.index} id={item.index} songName={item.songName} albumnName={item.albumnName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
+              <Playlist key={item.specialId} id={item.index} songName={item.songName} albumName={item.albumName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
             ))}
           {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
-          {console.log(arrayLists)}   
+          <small>{error.playlistError}</small>
+          {console.log(arrayList)}   
         </div>
 
         <div>
@@ -132,7 +151,7 @@ useEffect(() => {
                   playlistName={item.playlistName} 
                   songsInfo={item.arrList.map((plate) => ({
                     songName: plate.songName,
-                    albumName: plate.albumName 
+                    artistName: plate.artistName 
                   }))}
             />
             ))}
