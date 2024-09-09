@@ -1,7 +1,11 @@
 const clientId = "941433360379494185dbfadafd0a9781";
 const clientSecret = "b07bddc3d41c47afa844b641dafdc9ba";
 
-		const response = await fetch("https://accounts.spotify.com/api/token", {
+const redirect_uri = "http://localhost:3002/";
+const AUTHORIZE = "https://accounts.spotify.com/authorize";
+const TOKEN = "https://accounts.spotify.com/api/token";
+
+		const response = await fetch(TOKEN, {
 			method: "POST",
 			body: `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
 			headers: {
@@ -11,8 +15,6 @@ const clientSecret = "b07bddc3d41c47afa844b641dafdc9ba";
 
 		const jsonResponse = await response.json();
 		const accessToken = jsonResponse.access_token;
-
-
 
 export async function get(endpoint) {
 
@@ -30,9 +32,57 @@ export async function get(endpoint) {
 		return tracksData;				
 }
 
+function handleRedirect() {
+	let code = getCode();
+	fetchAccessToken(code);
+}
+
+function getCode() {
+	let code = null;
+	const querystring = window.location.search;
+	if (querystring.length > 0) {
+		const urlParams = new URLSearchParams(querystring);
+		code = urlParams.get('code');
+	}
+	return code;
+}
+
+function requestAuthorization() {
+	let url = AUTHORIZE;
+	url += "?client_id=" + clientId;
+	url += "&response_type=code";
+	url += "&redirect_uri=" + encodeURI(redirect_uri);
+	url += "&scope=playlist-modify-public";
+	window.location.href = url;
+}
+
+function fetchAccessToken(code) {
+	let body = "grant_type=authorization_code";
+    body += "&code=" + code; 
+    body += "&redirect_uri=" + encodeURI(redirect_uri);
+    body += "&client_id=" + clientId;
+    body += "&client_secret=" + clientSecret;
+    callAuthorizationApi(body);
+}
+
+async function callAuthorizationApi(body) {
+	const response = await fetch(TOKEN, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"Authorization": 'Basic ' + btoa(clientId + ":" + clientSecret)
+		}
+	})
+	console.log(response);
+}
+
+handleRedirect();
+requestAuthorization();
+
+/*
 export async function createPlaylist(userId, name) {
 
-	const url = `https://api.spotify.com/v1/users/${userId}/playlists?scope=playlist-modify-public`; 
+	const url = `https://api.spotify.com/v1/users/${userId}/playlists`; 
 
 	const response = await fetch(url, {
 		method: "POST",
@@ -40,9 +90,8 @@ export async function createPlaylist(userId, name) {
 			"Authorization": `Bearer ${accessToken}`,
 			"Content-Type": "application/json"
 		},
-		body: {
-			"name": name,
-						
+		data: {
+			name: JSON.stringify({name: name, public: true})						
 		}
 	})
 
@@ -50,3 +99,4 @@ export async function createPlaylist(userId, name) {
 
 	return data;
 }
+*/

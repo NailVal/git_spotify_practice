@@ -101,12 +101,13 @@ useEffect(() => {
 
   const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
 
+  /*
   arrayLists.forEach(list => {
       createPlaylist(userId, list.playlistName).then((response) => {
         console.log(response);
       })
   })
-
+  */
 }, [arrayLists]);
 
 
