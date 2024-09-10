@@ -1,10 +1,65 @@
+import qs from "qs";
+
 const clientId = "941433360379494185dbfadafd0a9781";
 const clientSecret = "b07bddc3d41c47afa844b641dafdc9ba";
 
-const redirect_uri = "http://localhost:3002/";
+const redirect_uri = "http://localhost:3000";
 const AUTHORIZE = "https://accounts.spotify.com/authorize";
 const TOKEN = "https://accounts.spotify.com/api/token";
 
+
+export async function authenticate() {
+	let url = AUTHORIZE;
+	url += "?client_id=" + clientId;
+	url += "&response_type=code";
+	url += "&redirect_uri=" + redirect_uri;
+	url += "&scope=user-read-private user-read-email playlist-modify-public";
+
+	const info = window.location.search;
+	const params = new URLSearchParams(info);
+	const myCode = params.get("code");
+
+	furtherAuthenticate(myCode);
+} 
+
+
+async function furtherAuthenticate(code) {
+
+	/*
+	const data = qs.stringify({
+		code: code,
+		grant_type: "client_credentials",
+		redirect_uri: redirect_uri
+	})
+	*/
+
+	const data = JSON.stringify({
+		code: code,
+		grant_type: 'authorization_code',
+		redirect_uri: redirect_uri
+	})
+
+	const response = await fetch(TOKEN, {
+		method: 'POST',
+		data,
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Authorization': 'Basic ' + btoa(clientId + ":" + clientSecret)
+		}
+	})
+	const jsonResponse = await response.json();
+	console.log(jsonResponse);
+}
+
+
+
+
+
+
+
+
+
+/*
 		const response = await fetch(TOKEN, {
 			method: "POST",
 			body: `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
@@ -32,6 +87,19 @@ export async function get(endpoint) {
 		return tracksData;				
 }
 
+*/
+
+
+
+
+
+
+
+
+
+
+
+/*
 function handleRedirect() {
 	let code = getCode();
 	fetchAccessToken(code);
@@ -78,6 +146,7 @@ async function callAuthorizationApi(body) {
 
 handleRedirect();
 requestAuthorization();
+*/
 
 /*
 export async function createPlaylist(userId, name) {
