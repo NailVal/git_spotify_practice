@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-// import { get, createPlaylist } from './fetch';
+import { get, createPlaylist } from './fetch';
 import SearchBar from './components/SearchBar';
 import Results from './components/Results';
 import Playlist from './components/Playlist';
 import List from './components/List';
 import styles from '../src/css_modules/App.module.css';
-import { authenticate } from './fetch';
 
 function App() {
 
@@ -17,7 +16,6 @@ function App() {
   const [playList, setPlayList] = useState('');
   const [arrayLists, setArrayLists] = useState([]);
 
-  authenticate();
 
   const handleChange = (addQuery) => {
     setQuery(addQuery);
@@ -83,7 +81,7 @@ function App() {
   }
 
   
-  /*
+  
 useEffect(() => {
   if (query.length > 0 && isActive) {
     get(query).then((response) => {
@@ -97,15 +95,12 @@ useEffect(() => {
   }
 
 }, [isActive]);
-*/
 
 
-/*
 useEffect(() => {
 
   const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
 
-  
   arrayLists.forEach(list => {
       createPlaylist(userId, list.playlistName).then((response) => {
         console.log(response);
@@ -114,7 +109,6 @@ useEffect(() => {
   
 }, [arrayLists]);
 
-*/
 
   return (
     <>
