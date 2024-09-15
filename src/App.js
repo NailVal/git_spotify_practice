@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { get, createPlaylist } from './fetch';
+import { authorize, onPageLoad, get, createPlaylist } from './fetch';
 import SearchBar from './components/SearchBar';
 import Results from './components/Results';
 import Playlist from './components/Playlist';
@@ -16,13 +16,16 @@ function App() {
   const [playList, setPlayList] = useState('');
   const [arrayLists, setArrayLists] = useState([]);
 
-
   const handleChange = (addQuery) => {
     setQuery(addQuery);
   }
 
   const handleSubmit = (addBoolean) => {
     setIsActive(addBoolean);
+
+    if (query.length > 0) {
+      authorize();
+    }
 
     if (query.length === 0) {
       const resultsError = 'Type in an input field!';
@@ -79,16 +82,15 @@ function App() {
   const namePlaylist = (e) => {
     setPlayList(e.target.value)
   }
-
-  
-  
+ 
 useEffect(() => {
+
   if (query.length > 0 && isActive) {
+    onPageLoad();
     get(query).then((response) => {
       setData(response.tracks.items);
     })
   }
-
 
   if (isActive) {
     setIsActive(false);
@@ -96,7 +98,7 @@ useEffect(() => {
 
 }, [isActive]);
 
-
+/*
 useEffect(() => {
 
   const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
@@ -108,55 +110,56 @@ useEffect(() => {
   })
   
 }, [arrayLists]);
-
+*/
 
   return (
     <>
       <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error.resultsError} />
       <h2>{data.length > 0 ? 'Results' : null}</h2>
-      
-      <div className={styles.container}>
-        <div>
-          {data.map((item, index) => (
-            <Results key={item.id} 
-                     index={index}
-                     specialId={item.id} 
-                     song={item.name} 
-                     album={item.album.name}
-                     handlePlusButton={handlePlusButton}
-                     artist={item.artists[0].name}  
-            /> 
-          ))}
-        </div>
 
-        <div>
-          {arrayList.length > 1 ?
-          <> 
-            <input type="text" value={playList} onChange={namePlaylist} placeholder="Name your playlist..." />
-            <small>{error.inputFieldError}</small>
-          </>
-          : null}  
-          {arrayList?.map((item, index) => (
-              <Playlist key={item.specialId} id={item.index} songName={item.songName} albumName={item.albumName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
-            ))}
-          {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
-          <small>{error.playlistError}</small>
-          {console.log(arrayList)}   
-        </div>
-
-        <div>
-          {arrayLists.map((item) => (
-            <List key={item.index} 
-                  playlistName={item.playlistName} 
-                  songsInfo={item.arrList.map((plate) => ({
-                    songName: plate.songName,
-                    artistName: plate.artistName 
-                  }))}
-            />
-            ))}
-        </div>
-
-      </div>  
+        
+              <div className={styles.container}>
+                  <div>
+                    {data.map((item, index) => (
+                      <Results key={item.id} 
+                              index={index}
+                              specialId={item.id} 
+                              song={item.name} 
+                              album={item.album.name}
+                              handlePlusButton={handlePlusButton}
+                              artist={item.artists[0].name}  
+                      /> 
+                    ))}
+                  </div>
+        
+                  <div>
+                    {arrayList.length > 1 ?
+                    <> 
+                      <input type="text" value={playList} onChange={namePlaylist} placeholder="Name your playlist..." />
+                      <small>{error.inputFieldError}</small>
+                    </>
+                    : null}  
+                    {arrayList?.map((item, index) => (
+                        <Playlist key={item.specialId} id={item.index} songName={item.songName} albumName={item.albumName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
+                      ))}
+                    {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
+                    <small>{error.playlistError}</small>
+                    {console.log(arrayList)}   
+                  </div>
+        
+                  <div>
+                    {arrayLists.map((item) => (
+                      <List key={item.index} 
+                            playlistName={item.playlistName} 
+                            songsInfo={item.arrList.map((plate) => ({
+                              songName: plate.songName,
+                              artistName: plate.artistName 
+                            }))}
+                      />
+                      ))}
+                  </div>
+              </div> 
+            
     </>
   );
 }

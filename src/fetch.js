@@ -1,13 +1,11 @@
-import querystring from "querystring";
-
 const clientId = "941433360379494185dbfadafd0a9781";
 const clientSecret = "b07bddc3d41c47afa844b641dafdc9ba";
 
-const redirect_uri = "http://localhost:3000";
+const redirect_uri = "http://localhost:3000/callback";
 const AUTHORIZE = "https://accounts.spotify.com/authorize";
 const TOKEN = "https://accounts.spotify.com/api/token";
 
-function authenticate() {
+export function authorize() {
 	let url = AUTHORIZE;
 	url += "?client_id=" + clientId;
 	url += "&response_type=code";
@@ -15,25 +13,38 @@ function authenticate() {
 	url += "&scope=user-read-private user-read-email playlist-modify-public";
 
 	window.location.href = url;
+}
 
-	const info = window.location.search;
-	const params = new URLSearchParams(info);
-	const myCode = params.get("code");
-
-	return myCode;
+export function onPageLoad() {
+	if (window.location.search.length > 0) {
+		handleRedirect();
+	}
 }
 
 
- async function furtherAuthenticate() {
+function handleRedirect() {
+	let code = getCode();
+	fetchAccessToken(code);
+	window.history.pushState("", "", redirect_uri);
+}
 
-	const body = querystring.stringify({
-		code: authenticate(),
-		grant_type: 'authorization_code',
-		redirect_uri: encodeURI(redirect_uri),
-		client_id: clientId,
-		client_secret: clientSecret
-	})
+function getCode() {
+	const info = window.location.search;
+	const params = new URLSearchParams(info);
+	const myCode = params.get("code");
+	return myCode;
+}
 
+function fetchAccessToken(code) {
+    let body = "grant_type=authorization_code";
+    body += "&code=" + code; 
+    body += "&redirect_uri=" + encodeURI(redirect_uri);
+    body += "&client_id=" + clientId;
+    body += "&client_secret=" + clientSecret;
+    getAccessKey(body);
+}
+
+async function getAccessKey(body) {
 	const response = await fetch(TOKEN, {
 		method: 'POST',
 		body,
@@ -42,31 +53,43 @@ function authenticate() {
 			'Authorization': 'Basic ' + btoa(clientId + ":" + clientSecret)
 		}
 	})
+
+	if (!response.ok) {
+		refreshAccessToken();
+	}
+
 	const jsonResponse = await response.json();
 
-	return jsonResponse;
+	handleResponse(jsonResponse);
+}
+
+function handleResponse(jsonResponse) {
+	localStorage.setItem("access_token", jsonResponse.access_token);
+	localStorage.setItem("refresh_token", jsonResponse.refresh_token);
+}
+
+function refreshAccessToken() {
+	let refresh_token = localStorage.getItem("refresh_token");
+	let body = "grant_type=refresh_token";
+	body += "&refresh_token=" + refresh_token;
+	body += "&client_id" + clientId;
+	getAccessKey(body);
 }
 
 export async function get(endpoint) {
 
-		const jsonResponse = await furtherAuthenticate();
-		const accessToken = jsonResponse.access_token;
-		console.log(jsonResponse);
+			const searchUrl = "https://api.spotify.com/v1/search?";
+			const searchQuery = `${searchUrl}q=${endpoint}&type=track&limit=10`;
+			const data = await fetch(searchQuery, {
+				headers: {
+					"Authorization": `Bearer ${localStorage.getItem("access_token")}`
+				}
+			});
+			const tracksData = await data.json();
+			return tracksData;	
+		}					
 
-		const url = "https://api.spotify.com/v1/search?";
-	    const searchQuery = `${url}q=${endpoint}&type=track&limit=10`;
-
-		const data = await fetch(searchQuery, {
-			headers: {
-				"Authorization": `Bearer ${accessToken}`
-			}
-		});
-
-		const tracksData = await data.json();
-
-		return tracksData;				
-}
-
+/*
 export async function createPlaylist(userId, name) {
 
 	const accessToken = await furtherAuthenticate();
@@ -90,19 +113,5 @@ export async function createPlaylist(userId, name) {
 
 	return data;
 }
-
-
-
-
-/*
-		const response = await fetch(TOKEN, {
-			method: "POST",
-			body: `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded"
-			} 		
-		 });
-
-		const jsonResponse = await response.json();
-		const accessToken = jsonResponse.access_token;
 */
+
