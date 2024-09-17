@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { authorize, onPageLoad, get, createPlaylist } from './fetch';
+import { authorize, get, createPlaylist } from './fetch';
 import SearchBar from './components/SearchBar';
 import Results from './components/Results';
 import Playlist from './components/Playlist';
@@ -15,6 +15,7 @@ function App() {
   const [arrayList, setArrayList] = useState([]);
   const [playList, setPlayList] = useState('');
   const [arrayLists, setArrayLists] = useState([]);
+  const [playlistId, setPlayListId] = useState([]);
 
   const handleChange = (addQuery) => {
     setQuery(addQuery);
@@ -22,10 +23,6 @@ function App() {
 
   const handleSubmit = (addBoolean) => {
     setIsActive(addBoolean);
-
-    if (query.length > 0) {
-      authorize();
-    }
 
     if (query.length === 0) {
       const resultsError = 'Type in an input field!';
@@ -54,10 +51,11 @@ function App() {
 
   const handleLists = (list) => {
 
+
     const obj = {
       index: arrayLists.length,  
       playlistName: playList,
-      arrList: list 
+      arrList: list, 
     }
 
     if (playList.length === 0) {
@@ -86,7 +84,6 @@ function App() {
 useEffect(() => {
 
   if (query.length > 0 && isActive) {
-    onPageLoad();
     get(query).then((response) => {
       setData(response.tracks.items);
     })
@@ -98,68 +95,74 @@ useEffect(() => {
 
 }, [isActive]);
 
-/*
+
 useEffect(() => {
 
   const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
-
+  
   arrayLists.forEach(list => {
       createPlaylist(userId, list.playlistName).then((response) => {
-        console.log(response);
+        setPlayListId(prev => (
+          [...prev, response.id]
+        ));
       })
   })
-  
-}, [arrayLists]);
-*/
+      
+}, [playlistId]);
 
+
+/*
+useEffect(() => {
+  addToPlaylist(actualPlaylist)
+}, [actualPlaylist]);
+*/
   return (
     <>
       <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error.resultsError} />
       <h2>{data.length > 0 ? 'Results' : null}</h2>
 
-        
-              <div className={styles.container}>
-                  <div>
-                    {data.map((item, index) => (
-                      <Results key={item.id} 
-                              index={index}
-                              specialId={item.id} 
-                              song={item.name} 
-                              album={item.album.name}
-                              handlePlusButton={handlePlusButton}
-                              artist={item.artists[0].name}  
-                      /> 
-                    ))}
-                  </div>
-        
-                  <div>
-                    {arrayList.length > 1 ?
-                    <> 
-                      <input type="text" value={playList} onChange={namePlaylist} placeholder="Name your playlist..." />
-                      <small>{error.inputFieldError}</small>
-                    </>
-                    : null}  
-                    {arrayList?.map((item, index) => (
-                        <Playlist key={item.specialId} id={item.index} songName={item.songName} albumName={item.albumName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
-                      ))}
-                    {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
-                    <small>{error.playlistError}</small>
-                    {console.log(arrayList)}   
-                  </div>
-        
-                  <div>
-                    {arrayLists.map((item) => (
-                      <List key={item.index} 
-                            playlistName={item.playlistName} 
-                            songsInfo={item.arrList.map((plate) => ({
-                              songName: plate.songName,
-                              artistName: plate.artistName 
-                            }))}
-                      />
-                      ))}
-                  </div>
-              </div> 
-            
+                          <div className={styles.container} >
+                          <div>   
+                            {data.map((item, index) => (
+                              <Results key={item.id} 
+                                      index={index}
+                                      specialId={item.id} 
+                                      song={item.name} 
+                                      album={item.album.name}
+                                      handlePlusButton={handlePlusButton}
+                                      artist={item.artists[0].name}
+                                      uris={item.uri}  
+                              /> 
+                            ))}
+                          </div>
+                
+                          <div>
+                            {arrayList.length > 1 ?
+                            <> 
+                              <input type="text" value={playList} onChange={namePlaylist} placeholder="Name your playlist..." />
+                              <small>{error.inputFieldError}</small>
+                            </>
+                            : null}  
+                            {arrayList?.map((item, index) => (
+                                <Playlist key={item.specialId} id={item.index} songName={item.songName} albumName={item.albumName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
+                              ))}
+                            {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
+                            <small>{error.playlistError}</small>
+                             {console.log(playlistId)}
+                          </div>
+                
+                          <div>
+                            {arrayLists.map((item) => (
+                              <List key={item.index} 
+                                    playlistName={item.playlistName} 
+                                    songsInfo={item.arrList.map((plate) => ({
+                                      songName: plate.songName,
+                                      artistName: plate.artistName 
+                                    }))}
+                              />
+                              ))}
+                          </div>
+                      </div>         
     </>
   );
 }

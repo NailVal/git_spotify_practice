@@ -8,7 +8,8 @@ function Results(props) {
 		songName: props.song,
 		albumName: props.album,
 		artistName: props.artist,
-		specialId: props.specialId
+		specialId: props.specialId,
+		uris: props.uris
 	};
 
 	const handleButton = () => {

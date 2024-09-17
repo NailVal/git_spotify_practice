@@ -13,6 +13,8 @@ export function authorize() {
 	url += "&scope=user-read-private user-read-email playlist-modify-public";
 
 	window.location.href = url;
+
+	onPageLoad();
 }
 
 export function onPageLoad() {
@@ -53,20 +55,16 @@ async function getAccessKey(body) {
 			'Authorization': 'Basic ' + btoa(clientId + ":" + clientSecret)
 		}
 	})
-
-	if (!response.ok) {
-		refreshAccessToken();
-	}
-
-	const jsonResponse = await response.json();
-
-	handleResponse(jsonResponse);
+		const jsonResponse = await response.json();
+		handleResponse(jsonResponse);
+	
 }
 
 function handleResponse(jsonResponse) {
 	localStorage.setItem("access_token", jsonResponse.access_token);
 	localStorage.setItem("refresh_token", jsonResponse.refresh_token);
 }
+
 
 function refreshAccessToken() {
 	let refresh_token = localStorage.getItem("refresh_token");
@@ -76,7 +74,35 @@ function refreshAccessToken() {
 	getAccessKey(body);
 }
 
+/*
+async function refreshAccessToken() {
+	const refreshToken = localStorage.getItem('refresh_token');
+	const url = "https://accounts.spotify.com/api/token";
+
+	const payload = {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded'
+		},
+		body: new URLSearchParams({
+			grant_type: 'refresh_token',
+			refresh_token: refreshToken,
+			client_id: clientId
+		  }),
+	}
+
+	const body = await fetch(url, payload);
+	const response = await body.json();
+
+	localStorage.setItem('access_token', response.access_token);
+	if (response.refresh_token) {
+		localStorage.setItem('refresh_token', response.refresh_token);
+	}
+}
+*/
+
 export async function get(endpoint) {
+
 
 			const searchUrl = "https://api.spotify.com/v1/search?";
 			const searchQuery = `${searchUrl}q=${endpoint}&type=track&limit=10`;
@@ -85,33 +111,44 @@ export async function get(endpoint) {
 					"Authorization": `Bearer ${localStorage.getItem("access_token")}`
 				}
 			});
+
+			if (data.status === 401) {
+				authorize();
+			}
+
 			const tracksData = await data.json();
 			return tracksData;	
 		}					
 
-/*
 export async function createPlaylist(userId, name) {
-
-	const accessToken = await furtherAuthenticate();
 
 	const url = `https://api.spotify.com/v1/users/${userId}/playlists`; 
 
 	const response = await fetch(url, {
 		method: "POST",
 		headers: {
-			"Authorization": `Bearer ${accessToken}`,
+			"Authorization": `Bearer ${localStorage.getItem("access_token")}`,
 			"Content-Type": "application/json"
 		},
-		data: {
-		//	name: JSON.stringify({name: name, public: true})
-			name: name,
-			public: true						
-		}
-	})
-
+		body: JSON.stringify({name: name, public: true})
+						
+	})	
 	const data = await response.json();
-
 	return data;
+}
+
+/*
+export async function addToPlaylist(playlistId) {
+	const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
+
+	const response = await fetch(url, {
+		method: "POST",
+		headers: {
+			"Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+			"Content-Type": "application/json"
+		}
+		body: 
+	})
 }
 */
 
