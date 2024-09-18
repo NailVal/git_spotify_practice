@@ -6,6 +6,8 @@ import Playlist from './components/Playlist';
 import List from './components/List';
 import styles from '../src/css_modules/App.module.css';
 
+const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
+
 function App() {
 
   const [query, setQuery] = useState('');
@@ -15,7 +17,8 @@ function App() {
   const [arrayList, setArrayList] = useState([]);
   const [playList, setPlayList] = useState('');
   const [arrayLists, setArrayLists] = useState([]);
-  const [playlistId, setPlayListId] = useState([]);
+  const [playlistId, setPlaylistId] = useState([]);
+  const [listButton, setListButton] = useState(null);
 
   const handleChange = (addQuery) => {
     setQuery(addQuery);
@@ -80,6 +83,10 @@ function App() {
   const namePlaylist = (e) => {
     setPlayList(e.target.value)
   }
+
+  const handleListButton = (addBoolean) => {
+    setListButton(addBoolean);
+  }
  
 useEffect(() => {
 
@@ -97,18 +104,16 @@ useEffect(() => {
 
 
 useEffect(() => {
-
-  const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
   
   arrayLists.forEach(list => {
       createPlaylist(userId, list.playlistName).then((response) => {
-        setPlayListId(prev => (
+        setPlaylistId(prev => (
           [...prev, response.id]
-        ));
+          ))
+        });    
       })
-  })
       
-}, [playlistId]);
+}, [listButton]);
 
 
 /*
@@ -153,7 +158,8 @@ useEffect(() => {
                 
                           <div>
                             {arrayLists.map((item) => (
-                              <List key={item.index} 
+                              <List key={item.index}
+                                    handleListButton={handleListButton} 
                                     playlistName={item.playlistName} 
                                     songsInfo={item.arrList.map((plate) => ({
                                       songName: plate.songName,

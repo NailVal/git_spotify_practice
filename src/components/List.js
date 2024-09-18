@@ -2,6 +2,9 @@ import React from 'react';
 
 function List(props) {
 
+	const handleButton = () => {
+		props.handleListButton(true);
+	}
 
 	return (
 		<>
@@ -12,7 +15,7 @@ function List(props) {
 					<p>{song.artistName}</p>
 				</div>
 			))}
-			<button type="submit">Save to Playlist</button>
+			<button type="submit" onClick={handleButton}>Save to Playlist</button>
 		</>	
 	)
 }
