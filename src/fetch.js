@@ -131,8 +131,12 @@ export async function createPlaylist(userId, name) {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({name: name, public: true})
-						
-	})	
+	})
+	
+	if (response.status === 401) {
+		console.log('SSSS');
+	}
+
 	const data = await response.json();
 	return data;
 }

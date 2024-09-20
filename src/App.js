@@ -6,8 +6,6 @@ import Playlist from './components/Playlist';
 import List from './components/List';
 import styles from '../src/css_modules/App.module.css';
 
-const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
-
 function App() {
 
   const [query, setQuery] = useState('');
@@ -18,7 +16,6 @@ function App() {
   const [playList, setPlayList] = useState('');
   const [arrayLists, setArrayLists] = useState([]);
   const [playlistId, setPlaylistId] = useState([]);
-  const [listButton, setListButton] = useState(null);
 
   const handleChange = (addQuery) => {
     setQuery(addQuery);
@@ -54,7 +51,6 @@ function App() {
 
   const handleLists = (list) => {
 
-
     const obj = {
       index: arrayLists.length,  
       playlistName: playList,
@@ -84,8 +80,16 @@ function App() {
     setPlayList(e.target.value)
   }
 
-  const handleListButton = (addBoolean) => {
-    setListButton(addBoolean);
+  const handleListButton = (playlistName) => {
+    const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
+    
+    createPlaylist(userId, playlistName).then((response) => {
+      console.log(response);
+
+      setArrayLists(prev => (
+        [...prev, { playlistUnqiueId: response.id }]
+        ))
+      }); 
   }
  
 useEffect(() => {
@@ -101,19 +105,6 @@ useEffect(() => {
   }
 
 }, [isActive]);
-
-
-useEffect(() => {
-  
-  arrayLists.forEach(list => {
-      createPlaylist(userId, list.playlistName).then((response) => {
-        setPlaylistId(prev => (
-          [...prev, response.id]
-          ))
-        });    
-      })
-      
-}, [listButton]);
 
 
 /*
@@ -153,15 +144,15 @@ useEffect(() => {
                               ))}
                             {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
                             <small>{error.playlistError}</small>
-                             {console.log(playlistId)}
+                             {console.log(arrayLists)}
                           </div>
                 
                           <div>
-                            {arrayLists.map((item) => (
-                              <List key={item.index}
+                            {arrayLists?.map((item) => (
+                              <List key={item.playlistName}
                                     handleListButton={handleListButton} 
                                     playlistName={item.playlistName} 
-                                    songsInfo={item.arrList.map((plate) => ({
+                                    songsInfo={item.arrList?.map((plate) => ({
                                       songName: plate.songName,
                                       artistName: plate.artistName 
                                     }))}
