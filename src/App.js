@@ -92,6 +92,10 @@ function App() {
     addToPlaylist(obj.playlistSpecialId, obj.songsUri).then((response) => {
       console.log(response);
     })
+
+    setArrayLists(items => (
+      items.filter((item, index) => item.playlistSpecialId !== obj.playlistSpecialId)
+    ));
   }
 
   async function fetchPlaylistId() {
