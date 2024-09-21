@@ -134,15 +134,15 @@ export async function createPlaylist(userId, name) {
 	})
 	
 	if (response.status === 401) {
-		console.log('SSSS');
+		authorize();
 	}
 
 	const data = await response.json();
 	return data;
 }
 
-/*
-export async function addToPlaylist(playlistId) {
+
+export async function addToPlaylist(playlistId, uris) {
 	const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
 
 	const response = await fetch(url, {
@@ -150,9 +150,16 @@ export async function addToPlaylist(playlistId) {
 		headers: {
 			"Authorization": `Bearer ${localStorage.getItem("access_token")}`,
 			"Content-Type": "application/json"
-		}
-		body: 
+		},
+		body: JSON.stringify({uris: uris})
 	})
+
+	if (response.status === 401) {
+		authorize();
+	}
+
+	const data = await response.json();
+	return data;
 }
-*/
+
 

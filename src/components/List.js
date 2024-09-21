@@ -1,9 +1,17 @@
 import React from 'react';
 
 function List(props) {
+	
 
-	const handleButton = () => {
-		props.handleListButton(props.playlistName);
+	function handleButton() {
+
+		const songsArrList = props.songsUri.flat();
+			
+		const obj = {
+			playlistSpecialId: props.playlistId,
+			songsUri: songsArrList
+		}
+		props.handleSaveButton(obj);
 	}
 
 	return (

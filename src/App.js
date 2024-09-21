@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { authorize, get, createPlaylist } from './fetch';
+import { authorize, get, createPlaylist, addToPlaylist } from './fetch';
 import SearchBar from './components/SearchBar';
 import Results from './components/Results';
 import Playlist from './components/Playlist';
 import List from './components/List';
 import styles from '../src/css_modules/App.module.css';
+
+const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
 
 function App() {
 
@@ -15,7 +17,7 @@ function App() {
   const [arrayList, setArrayList] = useState([]);
   const [playList, setPlayList] = useState('');
   const [arrayLists, setArrayLists] = useState([]);
-  const [playlistId, setPlaylistId] = useState([]);
+  const [readyObj, setReadyObj] = useState([]);
 
   const handleChange = (addQuery) => {
     setQuery(addQuery);
@@ -49,12 +51,13 @@ function App() {
     })
   }
 
-  const handleLists = (list) => {
+  const handleLists = async (list) => {
 
     const obj = {
       index: arrayLists.length,  
       playlistName: playList,
-      arrList: list, 
+      arrList: list,
+      playlistSpecialId: await fetchPlaylistId() 
     }
 
     if (playList.length === 0) {
@@ -80,17 +83,27 @@ function App() {
     setPlayList(e.target.value)
   }
 
-  const handleListButton = (playlistName) => {
-    const userId = '31k5fnk5mjvh5xtgi5meklkljtca';
-    
-    createPlaylist(userId, playlistName).then((response) => {
+  function handleSaveButton(obj) {
+    /*
+    setReadyObj(prev => (
+      [...prev, obj]
+    ))
+    */
+    addToPlaylist(obj.playlistSpecialId, obj.songsUri).then((response) => {
       console.log(response);
-
-      setArrayLists(prev => (
-        [...prev, { playlistUnqiueId: response.id }]
-        ))
-      }); 
+    })
   }
+
+  async function fetchPlaylistId() {
+    const data = await createPlaylist(userId, playList);
+    return data.id  
+  }
+
+  /*
+  async function saveToSpotify() {
+    const data = await addToPlaylist(readyObj.playlistSpecialId, songsUri);
+  }
+  */
  
 useEffect(() => {
 
@@ -106,12 +119,6 @@ useEffect(() => {
 
 }, [isActive]);
 
-
-/*
-useEffect(() => {
-  addToPlaylist(actualPlaylist)
-}, [actualPlaylist]);
-*/
   return (
     <>
       <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error.resultsError} />
@@ -144,18 +151,23 @@ useEffect(() => {
                               ))}
                             {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
                             <small>{error.playlistError}</small>
-                             {console.log(arrayLists)}
+                             {console.log(readyObj)}
                           </div>
                 
                           <div>
                             {arrayLists?.map((item) => (
-                              <List key={item.playlistName}
-                                    handleListButton={handleListButton} 
-                                    playlistName={item.playlistName} 
+                              <List key={item.index}
+                                    playlistId={item.playlistSpecialId}                                                                      
+                                    playlistName={item.playlistName}
+                                    handleSaveButton={handleSaveButton} 
                                     songsInfo={item.arrList?.map((plate) => ({
                                       songName: plate.songName,
                                       artistName: plate.artistName 
                                     }))}
+                                    songsUri={item.arrList?.map(plate => ([
+                                        plate.uris 
+                                    ]) 
+                                  )}
                               />
                               ))}
                           </div>
