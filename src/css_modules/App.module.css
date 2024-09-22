@@ -1,3 +1,45 @@
-.container {
-    display: flex;
+* {
+	box-sizing: border-box;	
 }
+
+body {
+	background-color: lightblue;	
+}
+
+.container {
+    margin: 0 auto;
+    border: 1px solid black;
+    width: 60%;
+}
+
+.music {
+	display: flex;
+	justify-content: space-around;
+	padding: 20px 0;
+}
+
+.results, .chosenResults {
+	border: 1px solid black;
+	flex-basis: 30%;
+}
+
+.searchBar.firstCase {
+	display: flex;
+	justify-content: center;
+	height: 100vh;
+	align-items: center;
+}
+
+.searchBar.secondCase {
+	margin: 20px 0;
+	display: flex;
+	justify-content: center;
+}
+
+/*
+.clicked {
+	margin: 20px 0;
+	display: flex;
+	justify-content: center;
+}
+*/

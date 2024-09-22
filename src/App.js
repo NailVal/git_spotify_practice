@@ -125,57 +125,61 @@ useEffect(() => {
 
   return (
     <>
-      <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error.resultsError} />
-      <h2>{data.length > 0 ? 'Results' : null}</h2>
+      <div className={styles.window}>
+        <div className={`${styles.searchBar} ${data.length > 0 ? styles.secondCase : styles.firstCase}`}>
+          <SearchBar onSearchBarChange={handleChange} value={query} handleSubmit={handleSubmit} handleError={error.resultsError} />
+        </div>
 
-                          <div className={styles.container} >
-                          <div>   
-                            {data.map((item, index) => (
-                              <Results key={item.id} 
-                                      index={index}
-                                      specialId={item.id} 
-                                      song={item.name} 
-                                      album={item.album.name}
-                                      handlePlusButton={handlePlusButton}
-                                      artist={item.artists[0].name}
-                                      uris={item.uri}  
-                              /> 
-                            ))}
-                          </div>
-                
-                          <div>
-                            {arrayList.length > 1 ?
-                            <> 
-                              <input type="text" value={playList} onChange={namePlaylist} placeholder="Name your playlist..." />
-                              <small>{error.inputFieldError}</small>
-                            </>
-                            : null}  
-                            {arrayList?.map((item, index) => (
-                                <Playlist key={item.specialId} id={item.index} songName={item.songName} albumName={item.albumName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
-                              ))}
-                            {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
-                            <small>{error.playlistError}</small>
-                             {console.log(readyObj)}
-                          </div>
-                
-                          <div>
-                            {arrayLists?.map((item) => (
-                              <List key={item.index}
-                                    playlistId={item.playlistSpecialId}                                                                      
-                                    playlistName={item.playlistName}
-                                    handleSaveButton={handleSaveButton} 
-                                    songsInfo={item.arrList?.map((plate) => ({
-                                      songName: plate.songName,
-                                      artistName: plate.artistName 
-                                    }))}
-                                    songsUri={item.arrList?.map(plate => ([
-                                        plate.uris 
-                                    ]) 
-                                  )}
-                              />
-                              ))}
-                          </div>
-                      </div>         
+                            <div className={styles.container}>
+                              <div className={styles.music}>
+                                <div className={styles.results}>
+                                  <h2>{data.length > 0 ? 'Results' : null}</h2>   
+                                  {data.map((item, index) => (
+                                    <Results key={item.id} 
+                                            index={index}
+                                            specialId={item.id} 
+                                            song={item.name} 
+                                            album={item.album.name}
+                                            handlePlusButton={handlePlusButton}
+                                            artist={item.artists[0].name}
+                                            uris={item.uri}  
+                                    /> 
+                                  ))}
+                                </div>
+                                <div className={styles.chosenResults} >
+                                  {arrayList.length > 1 ?
+                                  <> 
+                                    <input type="text" value={playList} onChange={namePlaylist} placeholder="Name your playlist..." />
+                                    <small>{error.inputFieldError}</small>
+                                  </>
+                                  : null}  
+                                  {arrayList?.map((item, index) => (
+                                      <Playlist key={item.specialId} id={item.index} songName={item.songName} albumName={item.albumName} artistName={item.artistName} handleMinusButton={handleMinusButton} />
+                                    ))}
+                                  {arrayList.length > 1 ? <button type="submit" onClick={() => handleLists(arrayList)}>Add to Playlist</button> : null}
+                                  <small>{error.playlistError}</small>
+                                   {console.log(readyObj)}
+                                </div>
+                              </div>
+                            <div>
+                              {arrayLists?.map((item) => (
+                                <List key={item.index}
+                                      playlistId={item.playlistSpecialId}                                                                      
+                                      playlistName={item.playlistName}
+                                      handleSaveButton={handleSaveButton} 
+                                      songsInfo={item.arrList?.map((plate) => ({
+                                        songName: plate.songName,
+                                        artistName: plate.artistName 
+                                      }))}
+                                      songsUri={item.arrList?.map(plate => ([
+                                          plate.uris 
+                                      ]) 
+                                    )}
+                                />
+                                ))}
+                            </div>
+                        </div>
+       </div>                        
     </>
   );
 }
